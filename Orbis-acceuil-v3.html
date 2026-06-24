@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbis — Le Prisme Numérique</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpolygon points='20,4 36,34 4,34' fill='none' stroke='%23B87A3A' stroke-width='1.2'/%3E%3Cline x1='2' y1='20' x2='14' y2='20' stroke='%231A1A1A' stroke-width='1'/%3E%3Cline x1='26' y1='20' x2='38' y2='14' stroke='%232D5A4A' stroke-width='1'/%3E%3Cline x1='26' y1='20' x2='38' y2='20' stroke='%236B5A8A' stroke-width='1'/%3E%3Cline x1='26' y1='20' x2='38' y2='26' stroke='%23B87A3A' stroke-width='1'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #F5F3EF;
+  --bg2:       #EDEAE4;
+  --bg3:       #E5E2DA;
+  --text:      #1A1A1A;
+  --text2:     #4A4A4A;
+  --muted:     #8A8A8A;
+  --accent:    #B87A3A;
+  --accent2:   #D49A5A;
+  --accent-dim:rgba(184,122,58,0.10);
+  --green:     #2D5A4A;
+  --green-light:#3A7D5F;
+  --purple:    #6B5A8A;
+  --line:      #D8D4CB;
+  --line2:     #C4BFB3;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR (discret) ── */
+.cursor {
+  position: fixed; width: 4px; height: 4px;
+  background: var(--accent); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform .1s, width .2s, height .2s, opacity .2s;
+  opacity: .7;
+}
+.cursor-ring {
+  position: fixed; width: 22px; height: 22px;
+  border: 1px solid rgba(184,122,58,0.25); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: left .14s ease-out, top .14s ease-out, width .3s, height .3s;
+}
+
+/* ── PROGRESS (fine ligne verte) ── */
+#progress {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--green-light); z-index: 200; width: 0%;
+  transition: width .1s;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.8rem 4rem;
+  background: linear-gradient(to bottom, rgba(245,243,239,.96) 0%, transparent 100%);
+  transition: background .3s;
+}
+nav.scrolled { background: rgba(245,243,239,.97); border-bottom: 1px solid var(--line); }
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 1.2rem; letter-spacing: .35em; text-transform: uppercase;
+  color: var(--text); text-decoration: none;
+  display: flex; align-items: center; gap: .8rem;
+}
+.nav-logo-mark { width: 22px; height: 22px; }
+.nav-links { display: flex; gap: 2.2rem; list-style: none; }
+.nav-links a {
+  font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color .2s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-links a.active { color: var(--accent); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; position: relative; overflow: hidden; padding: 0 4rem;
+}
+.hero-prism {
+  position: absolute; right: -2vw; top: 50%;
+  transform: translateY(-50%); opacity: .5;
+  width: 46vw; max-width: 620px;
+  pointer-events: none;
+}
+.hero-amber-line {
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  opacity: .3;
+}
+.hero-content {
+  position: relative; max-width: 800px;
+  animation: fade-up 1.2s ease-out forwards; opacity: 0;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-eyebrow {
+  font-size: .6rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.hero-eyebrow::before { content: ''; width: 30px; height: 1px; background: var(--accent); }
+.hero-title {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: clamp(4rem, 8vw, 8rem); line-height: .95;
+  letter-spacing: -.01em; margin-bottom: 2.5rem;
+}
+.hero-title em { font-style: italic; color: var(--accent); }
+.hero-tagline {
+  font-size: .9rem; color: var(--text2); line-height: 1.7;
+  max-width: 480px; margin-bottom: 3.5rem;
+  border-left: 1px solid var(--line2); padding-left: 1.5rem;
+}
+.hero-scroll {
+  position: absolute; bottom: 3rem; left: 4rem;
+  display: flex; align-items: center; gap: .8rem;
+  font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted);
+  animation: fade-up 1.2s .6s ease-out forwards; opacity: 0;
+}
+.scroll-line {
+  width: 40px; height: 1px; background: var(--line2);
+  position: relative; overflow: hidden;
+}
+.scroll-line::after {
+  content: ''; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%; background: var(--green-light);
+  animation: scroll-anim 2s 1.5s ease-in-out infinite;
+}
+@keyframes scroll-anim { 0% { left: -100%; } 100% { left: 100%; } }
+
+/* ── SECTION BASE ── */
+section { padding: 8rem 4rem; position: relative; }
+.section-label {
+  font-size: .55rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.section-label::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+
+/* ── HERO EDITION CARD ── */
+.hero-edition-card {
+  display: inline-flex; flex-direction: column; gap: .4rem;
+  border: 1px solid var(--line); border-left: 2px solid var(--accent);
+  padding: 1.2rem 1.8rem; margin-top: .5rem;
+  background: rgba(184,122,58,.04); max-width: 380px;
+  transition: border-color .2s, background .2s;
+}
+.hero-edition-card:hover { background: rgba(184,122,58,.07); }
+.hero-edition-label {
+  font-size: .48rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent);
+}
+.hero-edition-num {
+  font-size: .55rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted);
+}
+.hero-edition-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--text);
+  line-height: 1.2; margin: .2rem 0 .5rem;
+}
+.hero-edition-link {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .52rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); text-decoration: none; transition: gap .2s;
+}
+.hero-edition-link:hover { gap: .8rem; }
+
+
+#about { border-top: 1px solid var(--line); }
+.about-grid {
+  display: grid; grid-template-columns: 1fr 2fr;
+  gap: 6rem; align-items: start; margin-top: 4rem;
+}
+.about-left { position: sticky; top: 8rem; }
+.about-title {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 3.5rem; line-height: 1; color: var(--text);
+}
+.about-title em { font-style: italic; color: var(--accent); display: block; }
+.about-para { font-size: 1rem; line-height: 1.9; color: var(--text2); margin-bottom: 2rem; }
+.about-para strong { color: var(--text); font-weight: 400; }
+.about-manifesto {
+  margin-top: 3rem; padding: 2rem 2.5rem;
+  border: 1px solid var(--line); border-left: 2px solid var(--accent);
+  background: rgba(184,122,58,.03);
+}
+.about-manifesto p {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.4rem; line-height: 1.5; color: var(--text2); font-weight: 300;
+}
+
+/* ── PRINCIPES ── */
+#principes { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.principes-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5rem; }
+.principes-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 3rem; line-height: 1; }
+.principes-count { font-size: .6rem; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.principes-list { display: flex; flex-direction: column; }
+.principe {
+  display: grid; grid-template-columns: 60px 1fr 200px;
+  align-items: center; gap: 3rem; padding: 2.5rem 0;
+  border-bottom: 1px solid var(--line);
+  position: relative; overflow: hidden; transition: background .3s;
+}
+.principe::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: var(--accent-dim); transition: width .4s ease;
+}
+.principe:hover::before { width: 100%; }
+.principe:first-child { border-top: 1px solid var(--line); }
+.principe-num {
+  font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+  color: var(--muted); letter-spacing: .05em;
+  position: relative; z-index: 1; transition: color .2s;
+}
+.principe:hover .principe-num { color: var(--accent); }
+.principe-main { position: relative; z-index: 1; }
+.principe-name {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 2rem; color: var(--text); margin-bottom: .4rem; transition: color .2s;
+}
+.principe:hover .principe-name { color: var(--accent); }
+.principe-desc { font-size: .72rem; color: var(--text2); line-height: 1.5; max-width: 500px; }
+.principe-tag {
+  font-size: .5rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); text-align: right;
+  position: relative; z-index: 1; transition: color .2s;
+}
+.principe:hover .principe-tag { color: var(--accent); }
+
+/* ── DISCIPLINES / PILLARS ── */
+#disciplines { border-top: 1px solid var(--line); }
+.pillars-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5rem; }
+.pillars-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 3rem; line-height: 1; }
+.pillars-count { font-size: .6rem; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+.pillars-list { display: flex; flex-direction: column; }
+.pillar {
+  display: grid; grid-template-columns: 60px 1fr 200px;
+  align-items: center; gap: 3rem; padding: 2.5rem 0;
+  border-bottom: 1px solid var(--line);
+  position: relative; overflow: hidden; transition: background .3s;
+  text-decoration: none; color: inherit;
+}
+.pillar::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: var(--accent-dim); transition: width .4s ease;
+}
+.pillar:hover::before { width: 100%; }
+.pillar:first-child { border-top: 1px solid var(--line); }
+.pillar-num {
+  font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+  color: var(--muted); letter-spacing: .05em;
+  position: relative; z-index: 1; transition: color .2s;
+}
+.pillar:hover .pillar-num { color: var(--accent); }
+.pillar-main { position: relative; z-index: 1; }
+.pillar-name {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 2rem; color: var(--text); margin-bottom: .4rem; transition: color .2s;
+}
+.pillar:hover .pillar-name { color: var(--accent); }
+.pillar-desc { font-size: .72rem; color: var(--text2); line-height: 1.5; max-width: 500px; }
+.pillar-tag {
+  font-size: .5rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); text-align: right;
+  position: relative; z-index: 1; transition: color .2s;
+  display: flex; flex-direction: column; align-items: flex-end; gap: .5rem;
+}
+.pillar:hover .pillar-tag { color: var(--accent); }
+.pillar-arrow { opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .2s; color: var(--accent); }
+.pillar:hover .pillar-arrow { opacity: 1; transform: translateX(0); }
+
+/* ── ARCHIVES SECTION ── */
+#archives { border-top: 1px solid var(--line); padding: 0; }
+
+/* Archive page header (intégré dans le flux) */
+.archives-header {
+  padding: 8rem 4rem 5rem; border-bottom: 1px solid var(--line);
+  position: relative; overflow: hidden;
+}
+.archives-header-bg {
+  position: absolute; right: -8vw; top: 50%;
+  transform: translateY(-50%); opacity: .12;
+  width: 50vw; max-width: 560px;
+  pointer-events: none;
+}
+.page-eyebrow {
+  font-size: .6rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.page-eyebrow::before { content: ''; width: 30px; height: 1px; background: var(--accent); }
+.archives-title {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: clamp(3rem, 6vw, 5.5rem); line-height: .95; letter-spacing: -.01em;
+}
+.archives-title em { font-style: italic; color: var(--accent); }
+.archives-meta { margin-top: 2rem; font-size: .65rem; color: var(--muted); letter-spacing: .1em; }
+
+/* Archive layout */
+.archives-wrap { display: flex; min-height: 80vh; }
+
+/* Sidebar disciplines */
+.arc-disciplines {
+  width: 340px; flex-shrink: 0; border-right: 1px solid var(--line);
+  padding: 4rem 0; position: sticky; top: 0;
+  height: 100vh; overflow-y: auto; align-self: flex-start;
+}
+.disc-label {
+  font-size: .5rem; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--muted); padding: 0 3rem; margin-bottom: 2rem;
+}
+.disc-item {
+  display: flex; align-items: center; gap: 1.4rem;
+  padding: 1.4rem 3rem; cursor: none;
+  position: relative; overflow: hidden; transition: background .3s;
+  border-left: 2px solid transparent;
+}
+.disc-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: rgba(184,122,58,.08); transition: width .4s ease;
+}
+.disc-item:hover::before { width: 100%; }
+.disc-item.active { border-left-color: var(--accent); background: rgba(184,122,58,.05); }
+.disc-item.active::before { width: 100%; }
+.disc-num {
+  font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+  color: var(--muted); letter-spacing: .03em; min-width: 24px;
+  position: relative; z-index: 1; transition: color .2s;
+}
+.disc-item:hover .disc-num, .disc-item.active .disc-num { color: var(--accent); }
+.disc-body { position: relative; z-index: 1; }
+.disc-name {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 1.35rem; color: var(--text); transition: color .2s; line-height: 1.1;
+}
+.disc-item:hover .disc-name, .disc-item.active .disc-name { color: var(--accent); }
+.disc-count {
+  font-size: .5rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--muted); margin-top: .2rem; transition: color .2s;
+}
+.disc-item.active .disc-count { color: var(--accent); opacity: .7; }
+.disc-arrow {
+  margin-left: auto; position: relative; z-index: 1;
+  opacity: 0; transform: translateX(-8px); transition: opacity .2s, transform .2s;
+}
+.disc-item:hover .disc-arrow, .disc-item.active .disc-arrow { opacity: 1; transform: translateX(0); }
+.disc-arrow svg { width: 14px; height: 14px; }
+
+/* Editions panel */
+.editions-panel { flex: 1; padding: 4rem; position: relative; overflow: hidden; }
+.editions-slider { position: relative; width: 100%; }
+.editions-group {
+  display: none; opacity: 0; transform: translateX(40px);
+  transition: opacity .45s ease, transform .45s ease;
+}
+.editions-group.active { display: block; opacity: 1; transform: translateX(0); }
+.editions-group.exiting {
+  display: block; opacity: 0; transform: translateX(-40px);
+  pointer-events: none; position: absolute; top: 0; left: 0; right: 0;
+}
+.group-header {
+  display: flex; align-items: baseline; gap: 1.5rem;
+  margin-bottom: 3rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--line);
+}
+.group-discipline { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 2rem; color: var(--text); }
+.group-discipline em { font-style: italic; color: var(--accent); }
+.group-total { font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+/* Edition card */
+.edition-card {
+  display: grid; grid-template-columns: 80px 1fr auto;
+  align-items: start; gap: 2.5rem; padding: 2.2rem 0;
+  border-bottom: 1px solid var(--line);
+  position: relative; overflow: hidden; transition: background .3s;
+  text-decoration: none; color: inherit;
+}
+.edition-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: linear-gradient(to right, rgba(184,122,58,.08), transparent);
+  transition: width .5s ease;
+}
+.edition-card:hover::before { width: 100%; }
+.edition-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 400;
+  color: var(--line2); line-height: 1; transition: color .3s; position: relative; z-index: 1;
+}
+.edition-card:hover .edition-num { color: var(--accent); }
+.edition-body { position: relative; z-index: 1; }
+.edition-badge {
+  display: inline-block; font-size: .45rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent); background: rgba(184,122,58,.1); border: 1px solid rgba(184,122,58,.2);
+  padding: .2rem .5rem; margin-bottom: .7rem;
+}
+.edition-badge.en-cours { color: var(--green-light); background: rgba(58,125,95,.1); border-color: rgba(58,125,95,.2); }
+.edition-badge.publie { color: var(--text2); background: rgba(26,26,26,.05); border-color: rgba(26,26,26,.12); }
+.edition-title {
+  font-family: 'Cormorant Garamond', serif; font-weight: 300;
+  font-size: 1.5rem; line-height: 1.1; color: var(--text); margin-bottom: .5rem; transition: color .2s;
+}
+.edition-card:hover .edition-title { color: var(--accent); }
+.edition-subtitle { font-size: .7rem; color: var(--text2); line-height: 1.6; max-width: 480px; }
+.edition-meta { text-align: right; position: relative; z-index: 1; flex-shrink: 0; }
+.edition-date { font-size: .55rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+.edition-read { font-size: .55rem; letter-spacing: .1em; color: var(--muted); }
+.edition-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .5rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
+  opacity: 0; transform: translateX(-6px); transition: opacity .2s, transform .2s; margin-top: .7rem;
+}
+.edition-card:hover .edition-link { opacity: 1; transform: translateX(0); }
+.empty-state { padding: 5rem 0; text-align: center; }
+.empty-state p { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.4rem; color: var(--muted); margin-bottom: .8rem; }
+.empty-state span { font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+/* ── ARCHIVES BACK BUTTON ── */
+.archives-back-wrap {
+  padding: 4rem; border-top: 1px solid var(--line);
+  display: flex; justify-content: center;
+}
+.archives-back-btn {
+  display: inline-flex; align-items: center; gap: .8rem;
+  font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); border: 1px solid var(--line2);
+  padding: .9rem 2rem; text-decoration: none;
+  transition: color .2s, border-color .2s;
+}
+.archives-back-btn:hover { color: var(--accent); border-color: var(--accent); }
+.archives-back-btn svg { transition: transform .2s; }
+.archives-back-btn:hover svg { transform: translateX(-4px); }
+
+/* ── FOOTER ── */
+footer {
+  padding: 4rem; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-logo { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1rem; letter-spacing: .35em; text-transform: uppercase; color: var(--muted); }
+.footer-tagline { font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.footer-right { font-size: .55rem; letter-spacing: .1em; color: var(--muted); text-align: right; }
+
+/* ── REVEAL ── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+.reveal-delay-5 { transition-delay: .5s; }
+
+/* ── ADMIN TOGGLE ── */
+.admin-toggle {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 500;
+  background: var(--bg2); border: 1px solid var(--line2); color: var(--muted);
+  font-family: 'Inter', sans-serif; font-size: .5rem; letter-spacing: .2em;
+  text-transform: uppercase; padding: .7rem 1.2rem;
+  cursor: none; transition: border-color .2s, color .2s, opacity .25s, transform .25s;
+}
+.admin-toggle:hover { border-color: var(--accent); color: var(--accent); }
+#adminArchivesBtn { bottom: 5.6rem; }
+
+/* ── ADMIN PANEL ── */
+.admin-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(26,26,26,.4); z-index: 600; backdrop-filter: blur(4px);
+}
+.admin-overlay.open { display: block; }
+.admin-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 540px;
+  background: var(--bg); border-left: 1px solid var(--line);
+  z-index: 700; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .4s cubic-bezier(.22,1,.36,1);
+}
+.admin-panel.open { transform: translateX(0); }
+.admin-head {
+  padding: 1.4rem 2rem; border-bottom: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+}
+.admin-head-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1.1rem; letter-spacing: .1em; }
+.admin-head-sub { font-size: .5rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-top: .2rem; }
+.admin-close { background: none; border: none; color: var(--muted); cursor: none; font-size: 1.2rem; line-height: 1; padding: .3rem; transition: color .2s; }
+.admin-close:hover { color: var(--text); }
+.admin-body { flex: 1; overflow-y: auto; padding: 1.8rem 2rem; }
+.admin-section-title {
+  font-size: .5rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.4rem; margin-top: .4rem;
+  display: flex; align-items: center; gap: .8rem;
+}
+.admin-section-title::before { content: ''; width: 16px; height: 1px; background: var(--accent); }
+
+/* ── FORM ── */
+.f-group { margin-bottom: 1.4rem; }
+.f-label { display: block; font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: .4rem; }
+.f-hint { font-size: .55rem; color: var(--muted); margin-bottom: .4rem; display: block; line-height: 1.5; }
+.f-input, .f-select, .f-textarea {
+  width: 100%; background: #fff; border: 1px solid var(--line);
+  color: var(--text); font-family: 'Inter', sans-serif;
+  font-size: .76rem; font-weight: 300; padding: .55rem .8rem;
+  outline: none; transition: border-color .2s;
+}
+.f-input:focus, .f-select:focus, .f-textarea:focus { border-color: var(--accent); }
+.f-textarea { resize: vertical; line-height: 1.7; min-height: 65px; }
+.f-select option { background: #fff; }
+.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.admin-divider { border: none; border-top: 1px solid var(--line); margin: 1.8rem 0; }
+
+/* Editions list dans admin */
+.ed-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.6rem; }
+.ed-item {
+  background: #fff; border: 1px solid var(--line);
+  padding: .8rem 1rem; display: flex; align-items: center; gap: 1rem;
+  cursor: none; transition: border-color .2s;
+}
+.ed-item:hover { border-color: var(--line2); }
+.ed-item-disc { font-size: .45rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); min-width: 90px; }
+.ed-item-title { flex: 1; font-size: .75rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ed-item-num { font-family: 'JetBrains Mono', monospace; font-size: .9rem; color: var(--muted); min-width: 32px; }
+.ed-item-del { background: none; border: none; color: var(--muted); cursor: none; font-size: .9rem; padding: .2rem .4rem; transition: color .2s; flex-shrink: 0; }
+.ed-item-del:hover { color: #C84A3A; }
+
+/* ── BOUTONS ── */
+.btn-primary {
+  width: 100%; padding: .85rem; background: var(--accent); color: #fff;
+  border: none; font-family: 'Inter', sans-serif; font-size: .65rem; font-weight: 500;
+  letter-spacing: .15em; text-transform: uppercase; cursor: none; transition: background .2s; margin-top: .5rem;
+}
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary {
+  width: 100%; padding: .7rem; background: none; color: var(--muted);
+  border: 1px solid var(--line2); font-family: 'Inter', sans-serif;
+  font-size: .6rem; letter-spacing: .12em; text-transform: uppercase;
+  cursor: none; transition: border-color .2s, color .2s; margin-top: .5rem;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--green); color: #fff;
+  font-size: .56rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: .6rem 1.4rem; z-index: 800; transition: transform .3s; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: #C84A3A; color: #fff; }
+
+/* ── PRISM ANIMATION ── */
+@keyframes beam-pulse {
+  0%, 100% { opacity: .35; }
+  50% { opacity: .75; }
+}
+@keyframes ray-flow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -20; }
+}
+.prism-beam { animation: beam-pulse 3.5s ease-in-out infinite; }
+.prism-ray { stroke-dasharray: 4 3; animation: ray-flow 2.5s linear infinite; }
+
+@media (max-width: 768px) {
+  nav { padding: 1.4rem 2rem; }
+  #hero { padding: 0 2rem; }
+  section { padding: 5rem 2rem; }
+  .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .about-left { position: static; }
+  .principe, .pillar { grid-template-columns: 40px 1fr; gap: 1.5rem; }
+  .principe-tag, .pillar-tag { display: none; }
+  .archives-header { padding: 5rem 2rem 3rem; }
+  .arc-disciplines { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--line); padding: 2rem 0; }
+  .editions-panel { padding: 2rem; }
+  .edition-card { grid-template-columns: 50px 1fr; gap: 1.5rem; }
+  .edition-meta { display: none; }
+  footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; align-items: flex-start; }
+  .hero-prism { opacity: .25; width: 80vw; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">
+    <svg class="nav-logo-mark" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,5 35,32 5,32" fill="none" stroke="#B87A3A" stroke-width="1" stroke-linejoin="round"/>
+      <line x1="2" y1="20" x2="13" y2="20" stroke="#1A1A1A" stroke-width="1" class="prism-beam"/>
+      <line x1="27" y1="20" x2="38" y2="13" stroke="#2D5A4A" stroke-width="1" class="prism-ray"/>
+      <line x1="27" y1="20" x2="38" y2="20" stroke="#6B5A8A" stroke-width="1" class="prism-ray"/>
+      <line x1="27" y1="20" x2="38" y2="27" stroke="#B87A3A" stroke-width="1" class="prism-ray"/>
+    </svg>
+    Orbis
+  </a>
+  <ul class="nav-links">
+    <li><a href="#hero" id="nav-accueil" style="display:none">↑ Accueil</a></li>
+    <li><a href="#about"       data-nav="about" class="nav-hide-archives">Le projet</a></li>
+    <li><a href="#disciplines" data-nav="disciplines" class="nav-hide-archives">Outils</a></li>
+    <li><a href="#archives"    data-nav="archives">Archives</a></li>
+    <li><a href="a-propos_(4).html">Ligne éditoriale</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════ -->
+<section id="hero">
+  <svg class="hero-prism" viewBox="0 0 600 600" fill="none">
+    <!-- Faisceau entrant (gauche) -->
+    <line x1="20" y1="300" x2="240" y2="300" stroke="#1A1A1A" stroke-width="1.5" class="prism-beam"/>
+    <!-- Prisme triangle équilatéral -->
+    <polygon points="300,150 460,420 140,420" fill="none" stroke="#B87A3A" stroke-width="1.2" stroke-linejoin="round"/>
+    <!-- Faisceaux sortants décomposés -->
+    <line x1="360" y1="300" x2="580" y2="200" stroke="#2D5A4A" stroke-width="1.5" class="prism-ray"/>
+    <line x1="360" y1="300" x2="580" y2="300" stroke="#6B5A8A" stroke-width="1.5" class="prism-ray"/>
+    <line x1="360" y1="300" x2="580" y2="400" stroke="#B87A3A" stroke-width="1.5" class="prism-ray"/>
+    <!-- Labels subtils -->
+    <text x="590" y="200" font-family="Inter,sans-serif" font-size="9" fill="#2D5A4A" letter-spacing="1.5">EXPOSITION</text>
+    <text x="590" y="300" font-family="Inter,sans-serif" font-size="9" fill="#6B5A8A" letter-spacing="1.5">PRESSION</text>
+    <text x="590" y="400" font-family="Inter,sans-serif" font-size="9" fill="#B87A3A" letter-spacing="1.5">HYGIÈNE</text>
+  </svg>
+  <div class="hero-amber-line"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Magazine de santé numérique · Le Prisme Numérique</div>
+    <h1 class="hero-title">Orbis<br><em>Comprendre,</em><br><em>pas suivre.</em></h1>
+    <p class="hero-tagline" id="hero-tagline-text">
+      On ne subit pas le numérique. On le décompose, on l'analyse, on le reprend en main. Trois angles — exposition, pression, hygiène — pour lire ce qui nous arrive.
+    </p>
+    <!-- Dernière édition en une -->
+    <div class="hero-edition-card">
+      <div class="hero-edition-label">Dernière édition</div>
+      <div class="hero-edition-num">N°001 — Mars 2026</div>
+      <div class="hero-edition-title">Pourquoi tu ne peux plus t'arrêter de scroller</div>
+      <a href="exposition/edition-001.html" class="hero-edition-link">
+        Lire l'édition
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Découvrir
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     LE PROJET
+════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="section-label">Le projet</div>
+  <div class="about-grid">
+    <div class="about-left">
+      <h2 class="about-title reveal">Une autre<br><em>façon de lire</em><br>le numérique</h2>
+    </div>
+    <div class="about-right">
+      <p class="about-para reveal reveal-delay-1" id="about-p1">
+        Le numérique n'est pas neutre. Il façonne l'attention, la pression et l'hygiène mentale. On parle d'outils, rarement des <strong>mécanismes</strong> qui les rendent captifs. On nomme les apps, rarement les <strong>structures</strong> qui les rendent irrésistibles.
+      </p>
+      <p class="about-para reveal reveal-delay-2" id="about-p2">
+        Orbis est un magazine de santé numérique. Chaque numéro dissèque un sujet en profondeur — exposition, pression, hygiène — avec la rigueur d'un analyste et la clarté d'un soignant.
+      </p>
+      <p class="about-para reveal reveal-delay-3" id="about-p3">
+        Pas de moralisme. Pas de raccourci. Pas de bruit. Seulement ce qui structure notre rapport aux écrans.
+      </p>
+      <div class="about-manifesto reveal reveal-delay-4">
+        <p id="about-manifesto">"Ton téléphone te rend moins performant même quand tu ne l'utilises pas."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     PRINCIPES ÉDITORIAUX
+════════════════════════════════════════════════════ -->
+<section id="principes">
+  <div class="principes-header">
+    <div>
+      <div class="section-label">Ligne éditoriale</div>
+      <h2 class="principes-title reveal">Quatre principes,<br>aucune exception</h2>
+    </div>
+    <div class="principes-count reveal">04 engagements</div>
+  </div>
+  <div class="principes-list">
+    <div class="principe reveal">
+      <div class="principe-num">01</div>
+      <div class="principe-main">
+        <div class="principe-name">La profondeur avant tout</div>
+        <div class="principe-desc">Chaque sujet est traité dans sa complexité réelle. Pas de simplification trompeuse, pas de conclusion hâtive. Le lecteur repart avec une compréhension structurelle, pas une opinion toute faite.</div>
+      </div>
+      <div class="principe-tag">Rigueur · Complexité · Clarté</div>
+    </div>
+    <div class="principe reveal reveal-delay-1">
+      <div class="principe-num">02</div>
+      <div class="principe-main">
+        <div class="principe-name">Le temps long</div>
+        <div class="principe-desc">Les événements n'existent pas seuls. Orbis replace chaque sujet dans ses précédents historiques, ses cycles, ses permanences. Ce qui semble nouveau est souvent très ancien.</div>
+      </div>
+      <div class="principe-tag">Histoire · Cycles · Contexte</div>
+    </div>
+    <div class="principe reveal reveal-delay-2">
+      <div class="principe-num">03</div>
+      <div class="principe-main">
+        <div class="principe-name">Les sources, pas les opinions</div>
+        <div class="principe-desc">Chaque affirmation s'appuie sur des sources primaires identifiées. Les données chiffrées sont vérifiées, les analyses contradictoires sont confrontées. L'opinion n'est jamais présentée comme un fait.</div>
+      </div>
+      <div class="principe-tag">Sources · Données · Vérification</div>
+    </div>
+    <div class="principe reveal reveal-delay-3">
+      <div class="principe-num">04</div>
+      <div class="principe-main">
+        <div class="principe-name">Aucune allégeance</div>
+        <div class="principe-desc">Ni agenda politique, ni dépendance éditoriale, ni publicité. Orbis n'a de compte à rendre qu'à ses lecteurs — et à la réalité des faits.</div>
+      </div>
+      <div class="principe-tag">Indépendance · Transparence · Neutralité</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     DISCIPLINES / PILIERS
+════════════════════════════════════════════════════ -->
+<section id="disciplines">
+  <div class="pillars-header">
+    <div>
+      <div class="section-label">Thématiques</div>
+      <h2 class="pillars-title reveal">Cinq angles,<br>un seul prisme</h2>
+    </div>
+    <div class="pillars-count reveal">05 disciplines</div>
+  </div>
+  <div class="pillars-list">
+    <a href="#archives" class="pillar reveal" data-pillar-disc="exposition">
+      <div class="pillar-num">01</div>
+      <div class="pillar-main">
+        <div class="pillar-name">Exposition</div>
+        <div class="pillar-desc">Combien de temps, combien d'écrans, combien de sollicitations. Ce que l'exposition numérique fait à l'attention, au sommeil, à la cognition.</div>
+      </div>
+      <div class="pillar-tag">Temps · Écrans · Attention<span class="pillar-arrow">→</span></div>
+    </a>
+    <a href="#archives" class="pillar reveal reveal-delay-1" data-pillar-disc="pression">
+      <div class="pillar-num">02</div>
+      <div class="pillar-main">
+        <div class="pillar-name">Pression</div>
+        <div class="pillar-desc">Notifications, FOMO, comparaison sociale, injonctions à la performance. La dimension émotionnelle du numérique, ce qu'elle coûte et comment elle s'impose.</div>
+      </div>
+      <div class="pillar-tag">Notifications · FOMO · Charge<span class="pillar-arrow">→</span></div>
+    </a>
+    <a href="#archives" class="pillar reveal reveal-delay-2" data-pillar-disc="hygiene">
+      <div class="pillar-num">03</div>
+      <div class="pillar-main">
+        <div class="pillar-name">Hygiène</div>
+        <div class="pillar-desc">Protocoles, routines, architecture de choix. Comment reprendre le contrôle sans quitter les réseaux — et pourquoi ça marche mieux que la volonté.</div>
+      </div>
+      <div class="pillar-tag">Protocoles · Routines · Environnement<span class="pillar-arrow">→</span></div>
+    </a>
+    <a href="#archives" class="pillar reveal reveal-delay-3" data-pillar-disc="etudes">
+      <div class="pillar-num">04</div>
+      <div class="pillar-main">
+        <div class="pillar-name">Études de cas</div>
+        <div class="pillar-desc">Des situations concrètes, des personnes réelles, des données mesurées. Ce que le numérique fait à des vies spécifiques — pas en théorie, en pratique.</div>
+      </div>
+      <div class="pillar-tag">Cas · Terrain · Mesures<span class="pillar-arrow">→</span></div>
+    </a>
+    <a href="#archives" class="pillar reveal reveal-delay-4" data-pillar-disc="outils">
+      <div class="pillar-num">05</div>
+      <div class="pillar-main">
+        <div class="pillar-name">Outils</div>
+        <div class="pillar-desc">Applications, réglages, méthodes testées. Ce qui marche, ce qui ne marche pas, et pourquoi — évalué sans complaisance ni sponsor.</div>
+      </div>
+      <div class="pillar-tag">Apps · Réglages · Méthodes<span class="pillar-arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     ARCHIVES
+════════════════════════════════════════════════════ -->
+<section id="archives">
+
+  <!-- En-tête archives -->
+  <div class="archives-header">
+    <svg class="archives-header-bg" viewBox="0 0 600 600" fill="none">
+      <line x1="20" y1="300" x2="240" y2="300" stroke="#1A1A1A" stroke-width="1" class="prism-beam"/>
+      <polygon points="300,150 460,420 140,420" fill="none" stroke="#B87A3A" stroke-width="1"/>
+      <line x1="360" y1="300" x2="580" y2="200" stroke="#2D5A4A" stroke-width="1" class="prism-ray"/>
+      <line x1="360" y1="300" x2="580" y2="300" stroke="#6B5A8A" stroke-width="1" class="prism-ray"/>
+      <line x1="360" y1="300" x2="580" y2="400" stroke="#B87A3A" stroke-width="1" class="prism-ray"/>
+    </svg>
+    <div class="page-eyebrow">Toutes les éditions</div>
+    <h2 class="archives-title reveal">Archives<br><em>Orbis</em></h2>
+    <p class="archives-meta reveal" style="transition-delay:.15s" id="total-meta"></p>
+  </div>
+
+  <!-- Layout archives -->
+  <div class="archives-wrap">
+    <aside class="arc-disciplines">
+      <div class="disc-label">Filtrer par discipline</div>
+      <div id="disc-list"></div>
+    </aside>
+    <main class="editions-panel">
+      <div class="editions-slider" id="editions-slider"></div>
+    </main>
+  </div>
+
+  <!-- Bouton retour accueil -->
+  <div class="archives-back-wrap">
+    <a href="#hero" class="archives-back-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Retour à l'accueil
+    </a>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════ -->
+<footer>
+  <div>
+    <div class="footer-logo">Orbis</div>
+    <div class="footer-tagline" style="margin-top:.4rem">Le Prisme Numérique</div>
+  </div>
+  <div class="footer-right">
+    <div style="color:var(--muted);font-size:.5rem;letter-spacing:.15em;text-transform:uppercase">© 2026 Orbis</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════
+     BOUTONS ADMIN
+════════════════════════════════════════════════════ -->
+<button class="admin-toggle" id="adminEditorialBtn">⊕ Modifier le contenu</button>
+<button class="admin-toggle" id="adminArchivesBtn">⊕ Gérer les éditions</button>
+
+<!-- Overlay partagé -->
+<div class="admin-overlay" id="adminOverlay"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     PANEL ÉDITORIAL
+════════════════════════════════════════════════════ -->
+<div class="admin-panel" id="adminEditorialPanel">
+  <div class="admin-head">
+    <div>
+      <div class="admin-head-title">Éditeur de contenu</div>
+      <div class="admin-head-sub">Orbis · Ligne éditoriale</div>
+    </div>
+    <button class="admin-close" data-close="editorial">✕</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-section-title">Accroche hero</div>
+    <div class="f-group">
+      <label class="f-label">Sous-titre hero</label>
+      <span class="f-hint">Phrase visible sous le titre principal.</span>
+      <textarea class="f-textarea" id="edit-hero-tagline" rows="3"></textarea>
+    </div>
+    <hr class="admin-divider">
+    <div class="admin-section-title">Section « Le projet »</div>
+    <div class="f-group">
+      <label class="f-label">Paragraphe 1</label>
+      <textarea class="f-textarea" id="edit-p1" rows="4"></textarea>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Paragraphe 2</label>
+      <textarea class="f-textarea" id="edit-p2" rows="4"></textarea>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Paragraphe 3</label>
+      <textarea class="f-textarea" id="edit-p3" rows="3"></textarea>
+    </div>
+    <div class="f-group">
+      <label class="f-label">Citation manifesto</label>
+      <span class="f-hint">Affiché en italique dans l'encadré ambre.</span>
+      <textarea class="f-textarea" id="edit-manifesto" rows="3"></textarea>
+    </div>
+    <button class="btn-primary" id="btnSaveEditorial">Enregistrer les modifications</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PANEL ARCHIVES
+════════════════════════════════════════════════════ -->
+<div class="admin-panel" id="adminArchivesPanel">
+  <div class="admin-head">
+    <div>
+      <div class="admin-head-title">Gestionnaire d'éditions</div>
+      <div class="admin-head-sub">Orbis · Archives</div>
+    </div>
+    <button class="admin-close" data-close="archives">✕</button>
+  </div>
+  <div class="admin-body">
+
+    <div class="admin-section-title">Ajouter une édition</div>
+
+    <div class="f-group">
+      <label class="f-label">Discipline</label>
+      <select class="f-select" id="f-disc">
+        <option value="exposition">Exposition</option>
+        <option value="pression">Pression</option>
+        <option value="hygiene">Hygiène</option>
+        <option value="etudes">Études de cas</option>
+        <option value="outils">Outils</option>
+      </select>
+    </div>
+
+    <div class="f-row">
+      <div class="f-group">
+        <label class="f-label">Numéro</label>
+        <span class="f-hint">ex : 001, 002…</span>
+        <input type="text" class="f-input" id="f-num" placeholder="001">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Statut</label>
+        <select class="f-select" id="f-status">
+          <option value="publie">Publié</option>
+          <option value="en-cours">En cours</option>
+          <option value="a-venir">À paraître</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Titre</label>
+      <input type="text" class="f-input" id="f-title" placeholder="Pourquoi tu ne peux plus t'arrêter de scroller">
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Sous-titre</label>
+      <textarea class="f-textarea" id="f-subtitle" placeholder="Résumé de l'édition en une ou deux phrases."></textarea>
+    </div>
+
+    <div class="f-row">
+      <div class="f-group">
+        <label class="f-label">Date</label>
+        <input type="text" class="f-input" id="f-date" placeholder="Mars 2026">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Temps de lecture</label>
+        <input type="text" class="f-input" id="f-read" placeholder="12 min">
+      </div>
+    </div>
+
+    <div class="f-group">
+      <label class="f-label">Lien vers l'article HTML</label>
+      <span class="f-hint">Chemin relatif depuis ce fichier</span>
+      <input type="text" class="f-input" id="f-href" placeholder="exposition/edition-001.html">
+    </div>
+
+    <button class="btn-primary" id="btnAdd">Ajouter l'édition</button>
+
+    <hr class="admin-divider">
+
+    <div class="admin-section-title">Éditions enregistrées</div>
+    <div class="ed-list" id="ed-list"></div>
+
+    <button class="btn-secondary" id="btnExport">Exporter les données (JSON)</button>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════ -->
+<script>
+
+// ╔══════════════════════════════════════════════════╗
+// ║  CURSOR                                          ║
+// ╚══════════════════════════════════════════════════╝
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  }, 60);
+});
+
+// ╔══════════════════════════════════════════════════╗
+// ║  NAV — scroll + lien actif par IntersectionObserver
+// ╚══════════════════════════════════════════════════╝
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  navEl.classList.toggle('scrolled', window.scrollY > 60);
+  const h = document.body.scrollHeight - innerHeight;
+  document.getElementById('progress').style.width = (scrollY / h * 100) + '%';
+});
+
+// Active nav link selon la section visible
+const navLinks = document.querySelectorAll('.nav-links a[data-nav]');
+const sections = ['about', 'disciplines', 'archives'].map(id => document.getElementById(id));
+
+const navObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.dataset.nav === id);
+      });
+      // Masquer "Le projet" et "Outils" dans les archives, afficher "Accueil"
+      const inArchives = id === 'archives';
+      document.querySelectorAll('.nav-hide-archives').forEach(el => {
+        el.parentElement.style.display = inArchives ? 'none' : '';
+      });
+      document.getElementById('nav-accueil').parentElement.style.display = inArchives ? '' : 'none';
+    }
+  });
+}, { threshold: 0.15 });
+
+sections.forEach(s => { if (s) navObserver.observe(s); });
+
+// ╔══════════════════════════════════════════════════╗
+// ║  REVEAL                                          ║
+// ╚══════════════════════════════════════════════════╝
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(r => revealObserver.observe(r));
+
+// ╔══════════════════════════════════════════════════╗
+// ║  ADMIN — overlay partagé, deux panels            ║
+// ╚══════════════════════════════════════════════════╝
+const adminOverlay       = document.getElementById('adminOverlay');
+const adminEditorialPanel = document.getElementById('adminEditorialPanel');
+const adminArchivesPanel  = document.getElementById('adminArchivesPanel');
+
+function openPanel(panel) {
+  closeAllPanels();
+  panel.classList.add('open');
+  adminOverlay.classList.add('open');
+}
+
+function closeAllPanels() {
+  adminEditorialPanel.classList.remove('open');
+  adminArchivesPanel.classList.remove('open');
+  adminOverlay.classList.remove('open');
+}
+
+document.getElementById('adminEditorialBtn').addEventListener('click', () => openPanel(adminEditorialPanel));
+document.getElementById('adminArchivesBtn').addEventListener('click',  () => openPanel(adminArchivesPanel));
+adminOverlay.addEventListener('click', closeAllPanels);
+
+document.querySelectorAll('.admin-close').forEach(btn => {
+  btn.addEventListener('click', closeAllPanels);
+});
+
+// Visibilité des boutons admin selon la section visible
+const adminEditorialBtn = document.getElementById('adminEditorialBtn');
+const adminArchivesBtn  = document.getElementById('adminArchivesBtn');
+
+// Par défaut : bouton éditorial visible, archives masqué
+adminArchivesBtn.style.opacity = '0';
+adminArchivesBtn.style.pointerEvents = 'none';
+
+const archivesSection = document.getElementById('archives');
+const adminBtnObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // On est dans les archives
+      adminArchivesBtn.style.opacity  = '1';
+      adminArchivesBtn.style.pointerEvents = 'auto';
+      adminEditorialBtn.style.opacity = '0';
+      adminEditorialBtn.style.pointerEvents = 'none';
+    } else {
+      // On est hors archives
+      adminArchivesBtn.style.opacity  = '0';
+      adminArchivesBtn.style.pointerEvents = 'none';
+      adminEditorialBtn.style.opacity = '1';
+      adminEditorialBtn.style.pointerEvents = 'auto';
+    }
+  });
+}, { threshold: 0.15 });
+adminBtnObserver.observe(archivesSection);
+
+// ╔══════════════════════════════════════════════════╗
+// ║  CONTENU ÉDITORIAL (localStorage)               ║
+// ╚══════════════════════════════════════════════════╝
+const EDITORIAL_KEY = 'orbis_editorial_v2';
+
+const EDITORIAL_DEFAULTS = {
+  heroTagline: "On ne subit pas le numérique. On le décompose, on l'analyse, on le reprend en main. Trois angles — exposition, pression, hygiène — pour lire ce qui nous arrive.",
+  p1: "Le numérique n'est pas neutre. Il façonne l'attention, la pression et l'hygiène mentale. On parle d'outils, rarement des mécanismes qui les rendent captifs. On nomme les apps, rarement les structures qui les rendent irrésistibles.",
+  p2: "Orbis est un magazine de santé numérique. Chaque numéro dissèque un sujet en profondeur — exposition, pression, hygiène — avec la rigueur d'un analyste et la clarté d'un soignant.",
+  p3: "Pas de moralisme. Pas de raccourci. Pas de bruit. Seulement ce qui structure notre rapport aux écrans.",
+  manifesto: '"Ton téléphone te rend moins performant même quand tu ne l\'utilises pas."'
+};
+
+function loadEditorial() {
+  try {
+    const raw = localStorage.getItem(EDITORIAL_KEY);
+    if (raw) return Object.assign({}, EDITORIAL_DEFAULTS, JSON.parse(raw));
+  } catch(e) {}
+  return Object.assign({}, EDITORIAL_DEFAULTS);
+}
+
+function saveEditorial(data) {
+  localStorage.setItem(EDITORIAL_KEY, JSON.stringify(data));
+}
+
+function applyEditorial(data) {
+  document.getElementById('hero-tagline-text').textContent = data.heroTagline;
+  const p1El = document.getElementById('about-p1');
+  p1El.innerHTML = data.p1
+    .replace(/mécanismes/g, '<strong>mécanismes</strong>')
+    .replace(/structures/g, '<strong>structures</strong>');
+  document.getElementById('about-p2').textContent = data.p2;
+  document.getElementById('about-p3').textContent = data.p3;
+  document.getElementById('about-manifesto').textContent = data.manifesto;
+}
+
+function populateEditorialForm(data) {
+  document.getElementById('edit-hero-tagline').value = data.heroTagline;
+  document.getElementById('edit-p1').value = data.p1;
+  document.getElementById('edit-p2').value = data.p2;
+  document.getElementById('edit-p3').value = data.p3;
+  document.getElementById('edit-manifesto').value = data.manifesto;
+}
+
+document.getElementById('btnSaveEditorial').addEventListener('click', () => {
+  const data = {
+    heroTagline: document.getElementById('edit-hero-tagline').value.trim(),
+    p1:          document.getElementById('edit-p1').value.trim(),
+    p2:          document.getElementById('edit-p2').value.trim(),
+    p3:          document.getElementById('edit-p3').value.trim(),
+    manifesto:   document.getElementById('edit-manifesto').value.trim()
+  };
+  saveEditorial(data);
+  applyEditorial(data);
+  toast('Modifications enregistrées ✓');
+});
+
+// ╔══════════════════════════════════════════════════╗
+// ║  ARCHIVES (localStorage)                        ║
+// ╚══════════════════════════════════════════════════╝
+const DISC_CONFIG = [
+  { id: 'exposition', name: 'Exposition',     tags: 'Temps · Écrans · Attention' },
+  { id: 'pression',   name: 'Pression',        tags: 'Notifications · FOMO · Charge' },
+  { id: 'hygiene',     name: 'Hygiène',         tags: 'Protocoles · Routines · Environnement' },
+  { id: 'etudes',      name: 'Études de cas',   tags: 'Cas · Terrain · Mesures' },
+  { id: 'outils',      name: 'Outils',          tags: 'Apps · Réglages · Méthodes' }
+];
+
+const ARCHIVES_KEY = 'orbis_editions_v2';
+
+function loadEditions() {
+  try {
+    const raw = localStorage.getItem(ARCHIVES_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return [
+    {
+      id: 1, disc: 'exposition', num: '001',
+      title: 'Pourquoi tu ne peux plus t\u2019arrêter de scroller',
+      subtitle: 'Le scroll infini n\'est pas une fonctionnalité. C\'est une suppression du signal d\'arrêt — et ça change tout.',
+      date: 'Mars 2026', read: '12 min', status: 'publie',
+      href: 'exposition/edition-001.html'
+    }
+  ];
+}
+
+function saveEditions(data) {
+  localStorage.setItem(ARCHIVES_KEY, JSON.stringify(data));
+}
+
+let editions    = loadEditions();
+let currentDisc = DISC_CONFIG[0].id;
+
+function statusLabel(s) {
+  if (s === 'en-cours') return { cls: 'en-cours', text: 'En cours' };
+  if (s === 'a-venir')  return { cls: '', text: 'À paraître' };
+  return { cls: 'publie', text: 'Publié' };
+}
+
+function getEditionsForDisc(discId) {
+  return editions.filter(e => e.disc === discId);
+}
+
+// Rendu de la sidebar disciplines
+function renderDiscList() {
+  const container = document.getElementById('disc-list');
+  container.innerHTML = '';
+  DISC_CONFIG.forEach((d, i) => {
+    const count = getEditionsForDisc(d.id).length;
+    const div = document.createElement('div');
+    div.className = 'disc-item' + (d.id === currentDisc ? ' active' : '');
+    div.dataset.id = d.id;
+    div.innerHTML = `
+      <div class="disc-num">0${i + 1}</div>
+      <div class="disc-body">
+        <div class="disc-name">${d.name}</div>
+        <div class="disc-count">${count} édition${count > 1 ? 's' : ''}</div>
+      </div>
+      <div class="disc-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B87A3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
+      </div>`;
+    div.addEventListener('click', () => switchDisc(d.id));
+    container.appendChild(div);
+  });
+}
+
+// Rendu du slider d'éditions
+function renderEditionsSlider() {
+  const slider = document.getElementById('editions-slider');
+  slider.innerHTML = '';
+  DISC_CONFIG.forEach(d => {
+    const group = document.createElement('div');
+    group.className = 'editions-group' + (d.id === currentDisc ? ' active' : '');
+    group.dataset.disc = d.id;
+
+    const discEditions = getEditionsForDisc(d.id);
+    let cardsHTML = '';
+
+    if (discEditions.length === 0) {
+      cardsHTML = `<div class="empty-state"><p>Aucune édition encore publiée</p><span>Bientôt disponible</span></div>`;
+    } else {
+      discEditions.forEach(e => {
+        const s = statusLabel(e.status);
+        const isLink = e.href && e.href !== '#' && e.status === 'publie';
+        const tag = isLink ? 'a' : 'div';
+        const hrefAttr = isLink ? `href="${e.href}"` : '';
+        cardsHTML += `
+          <${tag} class="edition-card" ${hrefAttr}>
+            <div class="edition-num">${e.num}</div>
+            <div class="edition-body">
+              <span class="edition-badge ${s.cls}">${s.text}</span>
+              <div class="edition-title">${e.title}</div>
+              <div class="edition-subtitle">${e.subtitle || ''}</div>
+              ${isLink ? `<div class="edition-link">Lire <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>` : ''}
+            </div>
+            <div class="edition-meta">
+              <div class="edition-date">${e.date || ''}</div>
+              <div class="edition-read">${e.read || ''}</div>
+            </div>
+          </${tag}>`;
+      });
+    }
+
+    group.innerHTML = `
+      <div class="group-header">
+        <div class="group-discipline"><em>${d.name}</em></div>
+        <div class="group-total">${discEditions.length} édition${discEditions.length > 1 ? 's' : ''}</div>
+      </div>${cardsHTML}`;
+    slider.appendChild(group);
+  });
+}
+
+// Rendu du compteur
+function renderMeta() {
+  const total = editions.length;
+  document.getElementById('total-meta').textContent =
+    `${total} édition${total > 1 ? 's' : ''} · ${DISC_CONFIG.length} disciplines`;
+}
+
+// Rendu de la liste admin
+function renderAdminList() {
+  const list = document.getElementById('ed-list');
+  list.innerHTML = '';
+  if (editions.length === 0) {
+    list.innerHTML = '<div style="font-size:.65rem;color:var(--muted);padding:.5rem 0">Aucune édition enregistrée.</div>';
+    return;
+  }
+  [...editions].reverse().forEach(e => {
+    const disc = DISC_CONFIG.find(d => d.id === e.disc);
+    const item = document.createElement('div');
+    item.className = 'ed-item';
+    item.innerHTML = `
+      <div class="ed-item-num">${e.num}</div>
+      <div class="ed-item-disc">${disc ? disc.name : e.disc}</div>
+      <div class="ed-item-title">${e.title}</div>
+      <button class="ed-item-del" title="Supprimer">✕</button>`;
+    item.querySelector('.ed-item-del').addEventListener('click', () => deleteEdition(e.id));
+    list.appendChild(item);
+  });
+}
+
+function renderAll() {
+  renderDiscList();
+  renderEditionsSlider();
+  renderMeta();
+  renderAdminList();
+}
+
+// Changer de discipline
+function switchDisc(newId) {
+  if (newId === currentDisc) return;
+  document.querySelectorAll('.disc-item').forEach(el => el.classList.toggle('active', el.dataset.id === newId));
+  const cur = document.querySelector(`.editions-group[data-disc="${currentDisc}"]`);
+  if (cur) {
+    cur.classList.remove('active');
+    cur.classList.add('exiting');
+    setTimeout(() => cur.classList.remove('exiting'), 450);
+  }
+  currentDisc = newId;
+  setTimeout(() => {
+    const next = document.querySelector(`.editions-group[data-disc="${newId}"]`);
+    if (next) {
+      next.style.display = 'block';
+      next.offsetHeight; // force reflow
+      next.classList.add('active');
+    }
+  }, 60);
+}
+
+// Clic sur un pilier → scrolle vers archives ET sélectionne la discipline
+document.querySelectorAll('.pillar[data-pillar-disc]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const discId = link.dataset.pillarDisc;
+    // D'abord changer la discipline active
+    switchDisc(discId);
+    // Puis scroller vers la section archives
+    document.getElementById('archives').scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Ajouter une édition
+document.getElementById('btnAdd').addEventListener('click', () => {
+  const disc     = document.getElementById('f-disc').value.trim();
+  const num      = document.getElementById('f-num').value.trim();
+  const title    = document.getElementById('f-title').value.trim();
+  const subtitle = document.getElementById('f-subtitle').value.trim();
+  const date     = document.getElementById('f-date').value.trim();
+  const read     = document.getElementById('f-read').value.trim();
+  const status   = document.getElementById('f-status').value;
+  const href     = document.getElementById('f-href').value.trim() || '#';
+
+  if (!num || !title) { toast('Numéro et titre obligatoires', true); return; }
+
+  editions.push({ id: Date.now(), disc, num, title, subtitle, date, read, status, href });
+  saveEditions(editions);
+  renderAll();
+  toast('Édition ajoutée ✓');
+
+  ['f-num', 'f-title', 'f-subtitle', 'f-date', 'f-read', 'f-href']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-status').value = 'publie';
+});
+
+function deleteEdition(id) {
+  editions = editions.filter(e => e.id !== id);
+  saveEditions(editions);
+  renderAll();
+  toast('Édition supprimée');
+}
+
+// Export JSON
+document.getElementById('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(editions, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'orbis-editions.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Export JSON téléchargé');
+});
+
+// ╔══════════════════════════════════════════════════╗
+// ║  TOAST                                           ║
+// ╚══════════════════════════════════════════════════╝
+function toast(msg, isError) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+// ╔══════════════════════════════════════════════════╗
+// ║  INIT                                            ║
+// ╚══════════════════════════════════════════════════╝
+const editorial = loadEditorial();
+applyEditorial(editorial);
+populateEditorialForm(editorial);
+renderAll();
+
+</script>
+</body>
+</html>
